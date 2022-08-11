@@ -10,23 +10,27 @@ import java.util.Scanner;
 public class NoticeConsole {
 
     private NoticeService service;
+    private int page;
 
     public NoticeConsole() {
         service = new NoticeService();
+        page = 1;
     }
 
     public void printNoticeList() throws SQLException, ClassNotFoundException {
 
-        List<Notice> list = service.getList(1);
+        List<Notice> list = service.getList(page);
+        int count = service.getCount();
+        int lastPage = (count%10==0)? count/10 : count/10+1;
 
         System.out.println("---------------------------------------------");
-        System.out.printf("<공지사항> 총 %d 게시글\n", 12);
+        System.out.printf("<공지사항> 총 %d 게시글\n", count);
         System.out.println("---------------------------------------------");
 
         for (Notice n : list)
             System.out.printf("%d. %s / %s / %s\n", n.getId(), n.getTitle(), n.getWriterId(), n.getRegDate());
         System.out.println("---------------------------------------------");
-        System.out.printf("          %d/%d pages\n", 1, 2);
+        System.out.printf("          %d/%d pages\n", page, lastPage);
     }
 
     public int inputNoticeMenu() {
@@ -36,5 +40,29 @@ public class NoticeConsole {
         int menu = Integer.parseInt(sc.nextLine());
 
         return menu;
+    }
+
+    public void movePrevList() {
+        if (page == 1) {
+            System.out.println("========================");
+            System.out.println("[ 이전 페이지가 없습니다. ]");
+            System.out.println("========================");
+            return;
+        }
+        page--;
+    }
+
+    public void moveNextList() throws SQLException, ClassNotFoundException {
+        List<Notice> list = service.getList(page);
+        int count = service.getCount();
+        int lastPage = (count%10==0)? count/10 : count/10+1;
+
+        if (page == lastPage) {
+            System.out.println("========================");
+            System.out.println("[ 다음 페이지가 없습니다. ]");
+            System.out.println("========================");
+            return;
+        }
+        page++;
     }
 }
